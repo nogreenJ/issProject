@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Previsões de Passagem da ISS</title>
+    <script src="https://code.jquery.com/jquery-2.0.0.min.js"></script>
+    <style>
+        #passesTable,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        #passesTable th {
+            font-weight: 700;
+        }
+
+        .ini {
+            background-color: lightblue;
+        }
+
+        .max {
+            background-color: lightgreen;
+        }
+
+        .fim {
+            background-color: lightgoldenrodyellow;
+        }
+
+        .data {
+            background-color: lightsalmon;
+        }
+
+        p {
+            width: 75%;
+            text-align: justify;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Previsões de Passagem da ISS</h2>
+    <p>
+        A Estação Espacial Internacional, ou ISS (do inglês International Space Station)
+        é um laboratório espacial, em órbita no planeta terra e contendo não menos de 3
+        tripulantes por vez desde 2 de novembro de 2000. Ela é notória entre entusiastas
+        por ser vísivel da terra, havendo serviços que mostram previsões de suas passagens.
+    </p>
+    <p>
+        A tabela abaixo mostra algumas passagens nos próximos dias, com a data e duração da
+        visualização, assim como horários e posições iniciais, máximas e finais. A visibilidade
+        da ISS fica especialmente mais forte em torno do por do sol, quando os raios solares
+        remanescentes refletem de seus painéis, fazendo-os se destacar no céu escuro. Quanto
+        menor o índice de magnitude, melhor a visibilidade será.
+    </p>
+
+    <input id='email' type='text'></input><br />
+    <button id='logoutBtn' type="button">Logout</button><br /><br />
+
+    <table id="passesTable">
+        <tr>
+            <th colspan="3" class="data">Dados Gerais</th>
+
+            <th colspan="3" class="ini">Inicial</th>
+
+            <th colspan="3" class="max">Máxima</th>
+
+            <th colspan="3" class="fim">Final</th>
+
+            <th></th>
+        </tr>
+        <tr>
+            <th class="data">Data</th>
+            <th class="data">Magnitude</th>
+            <th class="data">Duração</th>
+
+            <th class="ini">Hora</th>
+            <th class="ini">Elevação</th>
+            <th class="ini">Azimute</th>
+
+            <th class="max">Hora</th>
+            <th class="max">Elevação</th>
+            <th class="max">Azimute</th>
+
+            <th class="fim">Hora</th>
+            <th class="fim">Elevação</th>
+            <th class="fim">Azimute</th>
+
+            <th class="agendar">Agendar</th>
+        </tr>
+    </table>
+</body>
+<script>
+    const passes = [];
+
+    const formatMagnitude = (magnitude) => {
+        var count = 0;
+        var hold = magnitude
+        var retval = ''
+        while (magnitude < -0.7 && count < 3) {
+            retval += '★';
+            magnitude += 0.7;
+            count++
+        }
+        count = 3 - count
+        while (count) {
+            retval += '☆';
+            count--
+        }
+        return retval + '(' + hold + ')';
+    }
+
+    const createReminder = (date) => {
+        const email = $("#email").val()
+        if (!email) {
+            alert("Informe seu email!")
+            return;
+        }
+        $.ajax({
+            url: "reminder",
+            type: "GET",
+            data: {
+                data: date,
+                email: email
+            },
+            success: () => {
+                alert('Lembrete criado para ' + date + '!')
+            }
+        });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+        $(document).ready(() => {
+            $.ajax({
+                url: "passes",
+                type: "GET",
+                success: (data) => {
+                    const passes = data;
+                    for (var i = 0; i < data.length; i++) {
+                        var pass = data[i]
+                        $("#passesTable").append(
+                            `<tr>
+                                <td class="data">${pass.data}</td>
+                                <td class="data">${formatMagnitude(pass.magnitude)}</td>
+                                <td class="data">${pass.duration}</td>
+
+                                <td class="ini">${pass.horaIni}</td>
+                                <td class="ini">${pass.posIni.elevation}°</td>
+                                <td class="ini">${pass.posIni.azimuth}° ${pass.posIni.cardinalidade}</td>
+
+                                <td class="max">${pass.horaMax}</td>
+                                <td class="max">${pass.posMax.elevation}°</td>
+                                <td class="max">${pass.posMax.azimuth}° ${pass.posMax.cardinalidade}</td>
+
+                                <td class="fim">${pass.horaFim}</td>
+                                <td class="fim">${pass.posFim.elevation}°</td>
+                                <td class="fim">${pass.posFim.azimuth}° ${pass.posFim.cardinalidade}</td>
+
+                                <td class="agendar">
+                                    <button class="reminderBtn" 
+                                            onclick="createReminder('${pass.data} ${pass.horaIni}')" 
+                                            type="button">
+                                        Lembre-me!
+                                    </button>
+                                </td>
+                            </tr>`
+                        )
+                    }
+                }
+            });
+        })
+        $("#logoutBtn").on("click", (event) => {
+            $.ajax({
+                url: "logout",
+                type: "GET",
+                success: () => location.reload()
+            });
+        })
+    })
+</script>
+
+</html>

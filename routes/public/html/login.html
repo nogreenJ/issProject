@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>File Getter Http</title>
+        <script src="https://code.jquery.com/jquery-2.0.0.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/7.14.1/firebase-app.js" defer ></script>
+        <script src="https://www.gstatic.com/firebasejs/7.14.1/firebase-auth.js" defer ></script>
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js" defer ></script>
+    </head>
+    <body>
+        <form>
+            <input id='loginEmail' type='text'></input><br/>
+            <input id='loginSenha' type='password'></input><br/>
+            <button id='loginRegister' type="button">Entrar</button><br/>
+        </form>
+        <script>
+            
+            window.addEventListener("DOMContentLoaded", () => {
+                const firebaseConfig = {
+                    apiKey: "AIzaSyCfi0ySkqy4ptXCOcAiXNo9LGHT70SzQBE",
+                    authDomain: "httpfilegetterauth.firebaseapp.com",
+                    projectId: "httpfilegetterauth",
+                    storageBucket: "httpfilegetterauth.appspot.com",
+                    messagingSenderId: "521558745116",
+                    appId: "1:521558745116:web:f39f14ee215ec807a33fd9"
+                };
+
+                firebase.initializeApp(firebaseConfig);
+
+                firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
+
+                $("#loginRegister").on("click", (event) => {
+                    event.preventDefault();
+                    const login = $("#loginEmail").val();
+                    const password = $("#loginSenha").val();
+
+                    firebase
+                        .auth()
+                        .signInWithEmailAndPassword(login, password)
+                        .then(({ user }) => {
+                            return user.getIdToken().then((idToken) => {
+                                $.ajax( {
+                                    url:"login",
+                                    type: "POST",
+                                    headers: {
+                                        Accept: "application/json",
+                                        "Content-Type": "application/json",
+                                        "CSRF-Token": Cookies.get("XSRF-TOKEN"),
+                                    },
+                                    data: JSON.stringify({ idToken }),
+                                    success: () => location.reload()
+                                });
+                            });
+                        })
+                        .then(() => {
+                            return firebase.auth().signOut();
+                        })
+                    return false;
+                });
+            });
+        </script>
+    </body>
+</html>
