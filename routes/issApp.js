@@ -62,7 +62,7 @@ router.get('/', function (req, res) {
                     attributes: {
                         'xsi:type': 'xsd:string'
                     },
-                    $value: 'N8VRS7-3SRYEV-TYAX3H-5204'
+                    $value: process.env.N2YO_KEY
                 }
             },
             function (err, result, xml) {
