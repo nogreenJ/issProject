@@ -44,6 +44,7 @@ router.get('/', function (req, res) {
 
         mailOptions.subject = 'Email de teste!';
         mailOptions.text = 'Email de teste!';
+        mailOptions.to = email;
 
         schedule.scheduleJob(date, function () {
             transporter.sendMail(mailOptions, function (error, info) {
