@@ -31,6 +31,10 @@
             background-color: lightsalmon;
         }
 
+        .agendar {
+            text-align: center;
+        }
+
         p {
             width: 75%;
             text-align: justify;
@@ -55,7 +59,8 @@
     </p>
 
     <input id='email' type='text'></input><br />
-    <button id='logoutBtn' type="button">Logout</button><br /><br />
+    <button id='testEmail' type="button">Testar email</button><br /><br />
+    <button id='logoutBtn' type="button">Logout</button><br />
 
     <table id="passesTable">
         <tr>
@@ -67,7 +72,7 @@
 
             <th colspan="3" class="fim">Final</th>
 
-            <th></th>
+            <th class="agendar">Agendar</th>
         </tr>
         <tr>
             <th class="data">Data</th>
@@ -86,7 +91,7 @@
             <th class="fim">Elevação</th>
             <th class="fim">Azimute</th>
 
-            <th class="agendar">Agendar</th>
+            <th class="agendar"><button id='cleanReminders' type="button">Limpar lembretes</button></th>
         </tr>
     </table>
 </body>
@@ -124,7 +129,12 @@
                 email: email
             },
             success: () => {
-                alert('Lembrete criado para ' + date + '!')
+                if (date) {
+                    alert('Lembrete criado para ' + date + '!')
+                }
+                else {
+                    alert('Enviando email de teste em 30 segundos!')
+                }
             }
         });
     }
@@ -174,6 +184,22 @@
                 url: "logout",
                 type: "GET",
                 success: () => location.reload()
+            });
+        })
+        $("#testEmail").on("click", (event) => {
+            createReminder('')
+        })
+        $("#cleanReminders").on("click", (event) => {
+            $.ajax({
+                url: "reminder",
+                type: "GET",
+                data: {
+                    data: '',
+                    email: ''
+                },
+                success: () => {
+                    alert('Lembretes deletados!')
+                }
             });
         })
     })
